@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
 
 		res.cookie('token', generateToken(user.id), cookieOptions)
 
-		const verificationLink = `/verify-email?token=${verificationToken}`
+		const verificationLink = `https://user-management-eight-gold.vercel.app/verify-email?token=${verificationToken}`
 
 		// nota bene: Email is sent asynchronously
 		sendEmail(

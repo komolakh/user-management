@@ -11,7 +11,7 @@ const app = express()
 
 app.use(
 	cors({
-		origin: '',
+		origin: 'https://user-management-eight-gold.vercel.app',
 		credentials: true
 	})
 )
