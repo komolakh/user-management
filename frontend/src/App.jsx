@@ -8,7 +8,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import VerifyEmail from './pages/VerifyEmail'
 
-axios.defaults.baseURL = ''
+axios.defaults.baseURL =
+	'https://user-management-production-959c.up.railway.app'
 axios.defaults.withCredentials = true
 
 function App() {
