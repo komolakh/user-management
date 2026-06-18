@@ -26,6 +26,9 @@ const AuthForm = ({ type, setUser, isLogin, navigateMessage, navigateTo }) => {
 	const onSubmit = async data => {
 		try {
 			const res = await axios.post(`/api/auth/${type}`, data)
+			if (res.data.token) {
+				localStorage.setItem('token', res.data.token)
+			}
 			setSuccess(`Successful ${type}`)
 			setUser(res.data.user)
 			setTimeout(() => navigate('/'), 1500)

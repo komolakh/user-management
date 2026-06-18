@@ -9,16 +9,6 @@ import sendEmail from '../utils/sendEmail.js'
 const router = express.Router()
 
 /**
- * note: Cookie configuration for JWT token storage
- */
-const cookieOptions = {
-	httpOnly: true,
-	secure: true,
-	sameSite: 'None',
-	maxAge: 30 * 24 * 60 * 60 * 1000
-}
-
-/**
  * note: Generate JWT access token for authenticated user
  */
 const generateToken = id =>
@@ -42,7 +32,7 @@ router.post('/register', async (req, res) => {
 		)
 		const user = rows[0]
 
-		res.cookie('token', generateToken(user.id), cookieOptions)
+		const token = generateToken(user.id)
 
 		const verificationLink = `https://user-management-eight-gold.vercel.app/verify-email?token=${verificationToken}`
 
@@ -55,9 +45,11 @@ router.post('/register', async (req, res) => {
 			console.error(err.message)
 		})
 
-		return res
-			.status(201)
-			.json({ user, message: 'Registration successful! Check your email.' })
+		return res.status(201).json({
+			user,
+			token,
+			message: 'Registration successful! Check your email.'
+		})
 	} catch (err) {
 		return res.status(err.code === '23505' ? 409 : 400).json({
 			message:
@@ -71,7 +63,7 @@ router.post('/register', async (req, res) => {
 /**
  * important: email verification endpoint
  */
-router.get('/verify-email', protect, async (req, res) => {
+router.get('/verify-email', async (req, res) => {
 	const { token } = req.query
 
 	if (!token) {
@@ -120,8 +112,12 @@ router.post('/login', async (req, res) => {
 			[user.id]
 		)
 
-		res.cookie('token', generateToken(user.id), cookieOptions)
-		res.json({ user: updated.rows[0] })
+		const token = generateToken(user.id)
+
+		res.json({
+			user: updated.rows[0],
+			token
+		})
 	} catch (err) {
 		res.status(500).json({ message: 'Login failed' })
 	}
@@ -136,7 +132,6 @@ router.get('/me', protect, (req, res) => res.json(req.user))
  * note: Logout user by clearing JWT cookie
  */
 router.post('/logout', (req, res) => {
-	res.cookie('token', '', { ...cookieOptions, maxAge: 1 })
 	res.json({ message: 'Logged out successfully' })
 })
 

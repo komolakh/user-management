@@ -10,7 +10,19 @@ import VerifyEmail from './pages/VerifyEmail'
 
 axios.defaults.baseURL =
 	'https://user-management-production-959c.up.railway.app'
-axios.defaults.withCredentials = true
+
+axios.interceptors.request.use(
+	config => {
+		const token = localStorage.getItem('token')
+		if (token) {
+			config.headers.Authorization = `Bearer ${token}`
+		}
+		return config
+	},
+	error => {
+		return Promise.reject(error)
+	}
+)
 
 function App() {
 	const [user, setUser] = useState(null)
@@ -20,11 +32,16 @@ function App() {
 
 	useEffect(() => {
 		const fetchUser = async () => {
+			if (!localStorage.getItem('token')) {
+				setLoading(false)
+				return
+			}
 			try {
 				const res = await axios.get('/api/auth/me')
 				setUser(res.data)
 			} catch (err) {
 				setUser(null)
+				localStorage.removeItem('token')
 				console.log(err)
 			} finally {
 				setLoading(false)

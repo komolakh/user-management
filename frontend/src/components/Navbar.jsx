@@ -5,9 +5,15 @@ const Navbar = ({ user, setUser }) => {
 	const navigate = useNavigate()
 
 	const handleLogout = async () => {
-		await axios.post('/api/auth/logout')
-		setUser(null)
-		navigate('/login')
+		try {
+			await axios.post('/api/auth/logout')
+		} catch (err) {
+			console.log('Logout error', err)
+		} finally {
+			localStorage.removeItem('token')
+			setUser(null)
+			navigate('/login')
+		}
 	}
 
 	return (
